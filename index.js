@@ -108,6 +108,7 @@ class Ora {
 		this.options = {
 			text: '',
 			color: 'cyan',
+			hex: '',
 			stream: process.stderr,
 			discardStdin: true,
 			...options
@@ -116,6 +117,7 @@ class Ora {
 		this.spinner = this.options.spinner;
 
 		this.color = this.options.color;
+		this.hex = this.options.hex;
 		this.hideCursor = this.options.hideCursor !== false;
 		this.interval = this.options.interval || this.spinner.interval || 100;
 		this.stream = this.options.stream;
@@ -248,7 +250,10 @@ class Ora {
 		const {frames} = this.spinner;
 		let frame = frames[this.frameIndex];
 
-		if (this.color) {
+		if (this.hex) {
+			frame = chalk.hex(this.hex)(frame);
+		}
+		else if (this.color) {
 			frame = chalk[this.color](frame);
 		}
 

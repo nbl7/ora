@@ -18,6 +18,8 @@ declare namespace ora {
 		| 'white'
 		| 'gray';
 
+	type Hexadecimal = `#${string[6]}`;
+
 	type PrefixTextGenerator = () => string;
 
 	interface Options {
@@ -54,6 +56,13 @@ declare namespace ora {
 		@default 'cyan'
 		*/
 		readonly color?: Color;
+
+		/**
+		Hexadecimal color of the spinner.
+
+		@default ''
+		*/
+		readonly hex?: Hexadecimal;
 
 		/**
 		Set to `false` to stop Ora from hiding the cursor.
@@ -154,6 +163,11 @@ declare namespace ora {
 		Change the spinner color.
 		*/
 		color: Color;
+
+		/**
+		Change the spinner hexadecimal color.
+		*/
+		hex: Hexadecimal;
 
 		/**
 		Change the spinner.
