@@ -1,5 +1,7 @@
 # ora
 
+### Forked from [https://github.com/sindresorhus/ora](https://github.com/sindresorhus/ora)
+
 > Elegant terminal spinner
 
 <p align="center">

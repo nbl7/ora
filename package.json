@@ -1,9 +1,9 @@
 {
-	"name": "ora",
-	"version": "5.4.0",
+	"name": "@nbl7/ora",
+	"version": "1.0.1",
 	"description": "Elegant terminal spinner",
 	"license": "MIT",
-	"repository": "sindresorhus/ora",
+	"repository": "nbl7/ora",
 	"funding": "https://github.com/sponsors/sindresorhus",
 	"author": {
 		"name": "Sindre Sorhus",
