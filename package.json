@@ -1,9 +1,9 @@
 {
-	"name": "ora",
-	"version": "6.1.0",
-	"description": "Elegant terminal spinner",
+	"name": "@nbl7/ora",
+	"version": "6.1.1",
+	"description": "Elegant terminal spinner - with hexadecimal colors",
 	"license": "MIT",
-	"repository": "sindresorhus/ora",
+	"repository": "nbl7/ora",
 	"funding": "https://github.com/sponsors/sindresorhus",
 	"author": {
 		"name": "Sindre Sorhus",

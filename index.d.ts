@@ -16,6 +16,8 @@ export type Color =
 	| 'white'
 	| 'gray';
 
+export type Hexadecimal = `#${string[6]}`;
+
 export type PrefixTextGenerator = () => string;
 
 export interface Options {
@@ -52,6 +54,13 @@ export interface Options {
 	@default 'cyan'
 	*/
 	readonly color?: Color;
+
+	/**
+	The hexadecimal color of the spinner.
+
+	@default ''
+	*/
+	readonly hex?: Hexadecimal;
 
 	/**
 	Set to `false` to stop Ora from hiding the cursor.
@@ -165,6 +174,11 @@ export interface Ora {
 	Change the spinner color.
 	*/
 	color: Color;
+
+	/**
+	Change the spinner hexadecimal color.
+	*/
+	hex: Hexadecimal;
 
 	/**
 	Change the spinner indent.
