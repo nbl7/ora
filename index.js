@@ -28,7 +28,6 @@ class Ora {
 	#prefixText;
 
 	color;
-	hex;
 
 	constructor(options) {
 		if (!stdinDiscarder) {
@@ -43,7 +42,6 @@ class Ora {
 
 		this.#options = {
 			color: 'cyan',
-			hex: '',
 			stream: process.stderr,
 			discardStdin: true,
 			hideCursor: true,
@@ -52,7 +50,6 @@ class Ora {
 
 		// Public
 		this.color = this.#options.color;
-		this.hex = this.#options.hex;
 
 		// It's important that these use the public setters.
 		this.spinner = this.#options.spinner;
@@ -211,9 +208,7 @@ class Ora {
 		const {frames} = this.#spinner;
 		let frame = frames[this.#frameIndex];
 
-		if (this.hex) {
-			frame = chalk.hex(this.hex)(frame);
-		} else if (this.color) {
+		if (this.color) {
 			frame = chalk[this.color](frame);
 		}
 
