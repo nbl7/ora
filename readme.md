@@ -17,7 +17,7 @@ $ npm install ora
 ## Usage
 
 ```js
-import ora from 'ora';
+const ora = require('ora');
 
 const spinner = ora('Loading unicorns').start();
 
@@ -223,16 +223,10 @@ Change the spinner.
 
 Change the spinner indent.
 
-### oraPromise(action, text)
-### oraPromise(action, options)
+### ora.promise(action, text)
+### ora.promise(action, options)
 
-Starts a spinner for a promise or promise-returning function. The spinner is stopped with `.succeed()` if the promise fulfills or with `.fail()` if it rejects. Returns the promise.
-
-```js
-import {oraPromise} from 'ora';
-
-await oraPromise(somePromise);
-```
+Starts a spinner for a function or a promise. The spinner is stopped with `.succeed()` if the promise fulfills or with `.fail()` if it rejects. Returns the promise.
 
 #### action
 
@@ -245,20 +239,15 @@ Type: `object`
 All of the [options](#options) plus the following:
 
 ##### successText
+Type: `string | ((result: T) => string)`
 
-Type: `string | ((result: T) => string) | undefined`
-
-The new text of the spinner when the promise is resolved.
-
-Keeps the existing text if `undefined`.
+The new text of the spinner when the promise is resolved. If undefined, will keep the initial text.
 
 ##### failText
+Type: `string | ((error: Error) => string)`
 
-Type: `string | ((error: Error) => string) | undefined`
+The new text of the spinner when the promise is rejected. If undefined, will keep the initial text.
 
-The new text of the spinner when the promise is rejected.
-
-Keeps the existing text if `undefined`.
 
 ## FAQ
 
@@ -267,8 +256,8 @@ Keeps the existing text if `undefined`.
 Use [Chalk](https://github.com/chalk/chalk):
 
 ```js
-import ora from 'ora';
-import chalk from 'chalk';
+const ora = require('ora');
+const chalk = require('chalk');
 
 const spinner = ora(`Loading ${chalk.red('unicorns')}`).start();
 ```

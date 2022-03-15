@@ -1,20 +1,18 @@
-import process from 'node:process';
-import readline from 'node:readline';
-import chalk from 'chalk';
-import cliCursor from 'cli-cursor';
-import cliSpinners from 'cli-spinners';
-import logSymbols from 'log-symbols';
-import stripAnsi from 'strip-ansi';
-import wcwidth from 'wcwidth';
-import isInteractive from 'is-interactive';
-import isUnicodeSupported from 'is-unicode-supported';
-import {BufferListStream} from 'bl';
+'use strict';
+const readline = require('readline');
+const chalk = require('chalk');
+const cliCursor = require('cli-cursor');
+const cliSpinners = require('cli-spinners');
+const logSymbols = require('log-symbols');
+const stripAnsi = require('strip-ansi');
+const wcwidth = require('wcwidth');
+const isInteractive = require('is-interactive');
+const isUnicodeSupported = require('is-unicode-supported');
+const {BufferListStream} = require('bl');
 
 const TEXT = Symbol('text');
 const PREFIX_TEXT = Symbol('prefixText');
 const ASCII_ETX_CODE = 0x03; // Ctrl+C emits this code
-
-// TODO: Use class fields when ESLint 8 is out.
 
 class StdinDiscarder {
 	constructor() {
@@ -70,7 +68,7 @@ class StdinDiscarder {
 
 		this.rl = readline.createInterface({
 			input: process.stdin,
-			output: this.mutedStream,
+			output: this.mutedStream
 		});
 
 		this.rl.on('SIGINT', () => {
@@ -103,7 +101,7 @@ class Ora {
 
 		if (typeof options === 'string') {
 			options = {
-				text: options,
+				text: options
 			};
 		}
 
@@ -112,7 +110,7 @@ class Ora {
 			color: 'cyan',
 			stream: process.stderr,
 			discardStdin: true,
-			...options,
+			...options
 		};
 
 		this.spinner = this.options.spinner;
@@ -269,8 +267,8 @@ class Ora {
 
 		this.stream.cursorTo(0);
 
-		for (let index = 0; index < this.linesToClear; index++) {
-			if (index > 0) {
+		for (let i = 0; i < this.linesToClear; i++) {
+			if (i > 0) {
 				this.stream.moveCursor(0, -1);
 			}
 
@@ -282,6 +280,7 @@ class Ora {
 		}
 
 		this.lastIndent = this.indent;
+
 		this.linesToClear = 0;
 
 		return this;
@@ -388,11 +387,14 @@ class Ora {
 	}
 }
 
-export default function ora(options) {
+const oraFactory = function (options) {
 	return new Ora(options);
-}
+};
 
-export async function oraPromise(action, options) {
+module.exports = oraFactory;
+
+// https://github.com/sindresorhus/ora/issues/169#issuecomment-873269524
+module.exports.promise = async (action, options) => {
 	const actionIsFunction = typeof action === 'function';
 	// eslint-disable-next-line promise/prefer-await-to-then
 	const actionIsPromise = typeof action.then === 'function';
@@ -401,30 +403,25 @@ export async function oraPromise(action, options) {
 		throw new TypeError('Parameter `action` must be a Function or a Promise');
 	}
 
-	const {successText, failText} = typeof options === 'object'
-		? options
-		: {successText: undefined, failText: undefined};
+	const {successText, failText} = typeof options === 'object' ?
+		options :
+		{successText: undefined, failText: undefined};
 
-	const spinner = ora(options).start();
-
+	const spinner = new Ora(options); // Set the initial string or ora options.
+	spinner.start();
 	try {
 		const promise = actionIsFunction ? action(spinner) : action;
 		const result = await promise;
-
-		spinner.succeed(
-			successText === undefined
-				? undefined
-				: (typeof successText === 'string' ? successText : successText(result)),
+		spinner.succeed(successText === undefined ?
+			undefined :
+			(typeof successText === 'string' ? successText : successText(result))
 		);
-
 		return result;
 	} catch (error) {
-		spinner.fail(
-			failText === undefined
-				? undefined
-				: (typeof failText === 'string' ? failText : failText(error)),
+		spinner.fail(failText === undefined ?
+			undefined :
+			(typeof failText === 'string' ? failText : failText(error))
 		);
-
 		throw error;
 	}
-}
+};

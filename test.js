@@ -1,11 +1,10 @@
-import process from 'node:process';
-import {PassThrough as PassThroughStream} from 'node:stream';
+import {PassThrough as PassThroughStream} from 'stream';
 import getStream from 'get-stream';
 import test from 'ava';
 import stripAnsi from 'strip-ansi';
+import Ora from './index.js';
 import TransformTTY from 'transform-tty';
 import cliSpinners from 'cli-spinners';
-import ora, {oraPromise} from './index.js';
 
 const spinnerCharacter = process.platform === 'win32' ? '-' : '⠋';
 const noop = () => {};
@@ -22,13 +21,13 @@ const doSpinner = async (fn, extraOptions = {}) => {
 	const stream = getPassThroughStream();
 	const output = getStream(stream);
 
-	const spinner = ora({
+	const spinner = new Ora({
 		stream,
 		text: 'foo',
 		color: false,
 		isEnabled: true,
 		isSilent: false,
-		...extraOptions,
+		...extraOptions
 	});
 
 	spinner.start();
@@ -49,6 +48,7 @@ test('main', macro, spinner => {
 test('title shortcut', async t => {
 	const stream = getPassThroughStream();
 	const output = getStream(stream);
+	const ora = Ora;
 
 	const spinner = ora('foo');
 	spinner.stream = stream;
@@ -64,13 +64,13 @@ test('title shortcut', async t => {
 });
 
 test('`.id` is not set when created', t => {
-	const spinner = ora('foo');
+	const spinner = new Ora('foo');
 	t.falsy(spinner.id);
 	t.false(spinner.isSpinning);
 });
 
 test('ignore consecutive calls to `.start()`', t => {
-	const spinner = ora('foo');
+	const spinner = new Ora('foo');
 	spinner.start();
 	const {id} = spinner;
 	spinner.start();
@@ -78,10 +78,10 @@ test('ignore consecutive calls to `.start()`', t => {
 });
 
 test('chain call to `.start()` with constructor', t => {
-	const spinner = ora({
+	const spinner = new Ora({
 		stream: getPassThroughStream(),
 		text: 'foo',
-		isEnabled: true,
+		isEnabled: true
 	}).start();
 
 	t.truthy(spinner.id);
@@ -146,16 +146,16 @@ test('.stopAndPersist() - isSilent:true can be disabled', macro, spinner => {
 	spinner.stopAndPersist({symbol: '@', text: 'all done'});
 }, /@ all done\n$/, {isSilent: true});
 
-test('oraPromise() - resolves', async t => {
+test('.promise() - resolves', async t => {
 	const stream = getPassThroughStream();
 	const output = getStream(stream);
 	const resolves = Promise.resolve(1);
 
-	oraPromise(resolves, {
+	Ora.promise(resolves, {
 		stream,
 		text: 'foo',
 		color: false,
-		isEnabled: true,
+		isEnabled: true
 	});
 
 	await resolves;
@@ -164,18 +164,18 @@ test('oraPromise() - resolves', async t => {
 	t.regex(stripAnsi(await output), /[√✔] foo\n$/);
 });
 
-test('oraPromise() - rejects', async t => {
+test('.promise() - rejects', async t => {
 	const stream = getPassThroughStream();
 	const output = getStream(stream);
 	const rejects = Promise.reject(new Error()); // eslint-disable-line unicorn/error-message
 
 	try {
-		await oraPromise(rejects, {
+		await Ora.promise(rejects, {
 			stream,
 			text: 'foo',
 			color: false,
-			isEnabled: true,
-		});
+			isEnabled: true
+		})
 	} catch {}
 
 	stream.end();
@@ -202,11 +202,11 @@ test('erases wrapped lines', t => {
 		cursorAtRow = 0;
 	};
 
-	const spinner = ora({
+	const spinner = new Ora({
 		stream,
 		text: 'foo',
 		color: false,
-		isEnabled: true,
+		isEnabled: true
 	});
 
 	spinner.render();
@@ -265,10 +265,10 @@ test('reset frameIndex when setting new spinner', async t => {
 	const stream = getPassThroughStream();
 	const output = getStream(stream);
 
-	const spinner = ora({
+	const spinner = new Ora({
 		stream,
 		isEnabled: true,
-		spinner: {frames: ['foo', 'fooo']},
+		spinner: {frames: ['foo', 'fooo']}
 	});
 
 	spinner.render();
@@ -284,10 +284,10 @@ test('reset frameIndex when setting new spinner', async t => {
 });
 
 test('set the correct interval when changing spinner (object case)', t => {
-	const spinner = ora({
+	const spinner = new Ora({
 		isEnabled: false,
 		spinner: {frames: ['foo', 'bar']},
-		interval: 300,
+		interval: 300
 	});
 
 	t.is(spinner.interval, 300);
@@ -298,10 +298,10 @@ test('set the correct interval when changing spinner (object case)', t => {
 });
 
 test('set the correct interval when changing spinner (string case)', t => {
-	const spinner = ora({
+	const spinner = new Ora({
 		isEnabled: false,
 		spinner: 'dots',
-		interval: 100,
+		interval: 100
 	});
 
 	t.is(spinner.interval, 100);
@@ -314,22 +314,18 @@ test('set the correct interval when changing spinner (string case)', t => {
 
 if (process.platform !== 'win32') {
 	test('throw when incorrect spinner', t => {
-		const spinner = ora();
+		const ora = new Ora();
 
 		t.throws(() => {
-			spinner.spinner = 'random-string-12345';
-		}, {
-			message: /no built-in spinner/,
-		});
+			ora.spinner = 'random-string-12345';
+		}, /no built-in spinner/);
 	});
 }
 
 test('throw when spinner is set to `default`', t => {
 	t.throws(() => {
-		ora({spinner: 'default'});
-	}, {
-		message: /no built-in spinner/,
-	});
+		new Ora({spinner: 'default'}); // eslint-disable-line no-new
+	}, /no built-in spinner/);
 });
 
 test('indent option', t => {
@@ -340,12 +336,12 @@ test('indent option', t => {
 		cursorAtRow = indent;
 	};
 
-	const spinner = ora({
+	const spinner = new Ora({
 		stream,
 		text: 'foo',
 		color: false,
 		isEnabled: true,
-		indent: 7,
+		indent: 7
 	});
 
 	spinner.render();
@@ -357,18 +353,16 @@ test('indent option', t => {
 test('indent option throws', t => {
 	const stream = getPassThroughStream();
 
-	const spinner = ora({
+	const spinner = new Ora({
 		stream,
 		text: 'foo',
 		color: false,
-		isEnabled: true,
+		isEnabled: true
 	});
 
 	t.throws(() => {
 		spinner.indent = -1;
-	}, {
-		message: 'The `indent` option must be an integer from 0 and up',
-	});
+	}, 'The `indent` option must be an integer from 0 and up');
 });
 
 test('handles wrapped lines when length of indent + text is greater than columns', t => {
@@ -376,11 +370,11 @@ test('handles wrapped lines when length of indent + text is greater than columns
 	stream.isTTY = true;
 	stream.columns = 20;
 
-	const spinner = ora({
+	const spinner = new Ora({
 		stream,
 		text: 'foo',
 		color: false,
-		isEnabled: true,
+		isEnabled: true
 	});
 
 	spinner.render();
@@ -415,16 +409,14 @@ test('.stopAndPersist() with dynamic prefixText', macro, spinner => {
 // New clear method tests
 
 const currentClearMethod = transFormTTY => {
-	const spinner = ora({
+	const spinner = new Ora({
 		text: 'foo',
 		color: false,
 		isEnabled: true,
 		stream: transFormTTY,
 		spinner: {
-			frames: [
-				'-',
-			],
-		},
+			frames: ['-']
+		}
 	});
 
 	let firstIndent = true;
@@ -434,8 +426,8 @@ const currentClearMethod = transFormTTY => {
 			return this;
 		}
 
-		for (let index = 0; index < this.linesToClear; index++) {
-			if (index > 0) {
+		for (let i = 0; i < this.linesToClear; i++) {
+			if (i > 0) {
 				this.stream.moveCursor(0, -1);
 			}
 
@@ -443,9 +435,9 @@ const currentClearMethod = transFormTTY => {
 			this.stream.cursorTo(this.indent);
 		}
 
-		// It's too quick to be noticeable, but indent does not get applied
-		// for the first render if `linesToClear === 0`. The new clear method
-		// doesn't have this issue, since it's called outside of the loop.
+		// It's too quick to be noticeable, but indent doesn't get applied
+		// for the first render if linesToClear = 0. New clear method
+		// doesn't have this issue, since it's called outside of the loop
 		if (this.linesToClear === 0 && firstIndent && this.indent) {
 			this.stream.cursorTo(this.indent);
 			firstIndent = false;
@@ -463,10 +455,9 @@ test.serial('new clear method test, basic', t => {
 	const transformTTY = new TransformTTY({crlf: true});
 	transformTTY.addSequencer();
 	transformTTY.addSequencer(null, true);
-
 	/*
-	If the frames from this sequence differ from the previous sequence,
-	it means the `spinner.clear()` method has failed to fully clear output between calls to render.
+		If the frames from this sequence differ from the previous sequence,
+		it means the spinner.clear method has failed to fully clear output between calls to render
 	*/
 
 	const currentClearTTY = new TransformTTY({crlf: true});
@@ -474,16 +465,14 @@ test.serial('new clear method test, basic', t => {
 
 	const currentOra = currentClearMethod(currentClearTTY);
 
-	const spinner = ora({
+	const spinner = new Ora({
 		text: 'foo',
 		color: false,
 		isEnabled: true,
 		stream: transformTTY,
 		spinner: {
-			frames: [
-				'-',
-			],
-		},
+			frames: ['-']
+		}
 	});
 
 	currentOra.render();
@@ -543,18 +532,18 @@ test('new clear method test, erases wrapped lines', t => {
 		return cursor.y === 0 ? 0 : cursor.y * -1;
 	};
 
-	const clearedLines = () => transformTTY.toString().split('\n').length;
+	const clearedLines = () => {
+		return transformTTY.toString().split('\n').length;
+	};
 
-	const spinner = ora({
+	const spinner = new Ora({
 		text: 'foo',
 		color: false,
 		isEnabled: true,
 		stream: transformTTY,
 		spinner: {
-			frames: [
-				'-',
-			],
-		},
+			frames: ['-']
+		}
 	});
 
 	currentOra.render();
@@ -632,20 +621,20 @@ test('new clear method test, erases wrapped lines', t => {
 		'- foo\n\nbar',
 		'- 00000000000000000000000000000000000000\n000000000000',
 		'- 00000000000000000000000000000000000000\n000000000000',
-		'- 🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄\n'
-			+ '🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄\n'
-			+ '🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄',
-		'- 🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄\n'
-			+ '🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄\n'
-			+ '🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄',
-		'- 🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄\n'
-			+ '🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄\n'
-			+ 'foo',
-		'- 🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄\n'
-			+ '🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄\n'
-			+ 'foo',
+		'- 🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄\n' +
+			'🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄\n' +
+			'🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄',
+		'- 🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄\n' +
+			'🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄\n' +
+			'🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄',
+		'- 🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄\n' +
+			'🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄\n' +
+			'foo',
+		'- 🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄\n' +
+			'🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄🦄\n' +
+			'foo',
 		'foo\n - \nbar',
-		'foo\n - \nbar',
+		'foo\n - \nbar'
 	]);
 
 	t.deepEqual(frames, clearedFrames);
@@ -676,7 +665,9 @@ test('new clear method, stress test', t => {
 		return result;
 	};
 
-	const randos = () => rAnDoMaNiMaLs(rando(5, 15), rando(25, 50));
+	const randos = () => {
+		return rAnDoMaNiMaLs(rando(5, 15), rando(25, 50));
+	};
 
 	const randomize = (s1, s2) => {
 		const spnr = cliSpinners.random;
@@ -700,10 +691,10 @@ test('new clear method, stress test', t => {
 
 	const currentOra = currentClearMethod(currentClearTTY);
 
-	const spinner = ora({
+	const spinner = new Ora({
 		color: false,
 		isEnabled: true,
-		stream: transformTTY,
+		stream: transformTTY
 	});
 
 	randomize(spinner, currentOra);

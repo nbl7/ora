@@ -1,6 +1,7 @@
-import {PassThrough as PassThroughStream} from 'node:stream';
 import {expectType} from 'tsd';
-import ora, {oraPromise} from './index.js';
+import {PassThrough as PassThroughStream} from 'stream';
+import ora = require('./index.js');
+import {promise} from './index.js';
 
 const spinner = ora('Loading unicorns');
 ora({text: 'Loading unicorns'});
@@ -44,18 +45,18 @@ spinner.render();
 spinner.frame();
 
 const resolves = Promise.resolve(1);
-void oraPromise(resolves, 'foo');
-void oraPromise(resolves, {
+void promise(resolves, 'foo');
+void promise(resolves, {
 	stream: new PassThroughStream(),
 	text: 'foo',
 	color: 'blue',
 	isEnabled: true,
-	isSilent: false,
+	isSilent: false
 });
-void oraPromise(async () => {
+void promise(async () => {
 	await resolves;
 }, 'foo');
-void oraPromise(async spinner => {
+void promise(async spinner => {
 	spinner.prefixText = 'foo';
 	await resolves;
 	return 7;
@@ -66,5 +67,5 @@ void oraPromise(async spinner => {
 	isEnabled: true,
 	isSilent: false,
 	successText: result => `Resolved with number ${result}`,
-	failText: 'bar',
+	failText: 'bar'
 });
