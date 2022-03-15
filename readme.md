@@ -4,12 +4,6 @@
 
 > Elegant terminal spinner
 
-<p align="center">
-	<br>
-	<img src="screenshot.svg" width="500">
-	<br>
-</p>
-
 ## Install
 
 ```
