@@ -45,27 +45,11 @@ spinner.render();
 spinner.frame();
 
 const resolves = Promise.resolve(1);
-void promise(resolves, 'foo');
-void promise(resolves, {
+promise(resolves, 'foo');
+promise(resolves, {
 	stream: new PassThroughStream(),
 	text: 'foo',
 	color: 'blue',
 	isEnabled: true,
 	isSilent: false
-});
-void promise(async () => {
-	await resolves;
-}, 'foo');
-void promise(async spinner => {
-	spinner.prefixText = 'foo';
-	await resolves;
-	return 7;
-}, {
-	stream: new PassThroughStream(),
-	text: 'foo',
-	color: 'blue',
-	isEnabled: true,
-	isSilent: false,
-	successText: result => `Resolved with number ${result}`,
-	failText: 'bar'
 });

@@ -133,22 +133,6 @@ declare namespace ora {
 		readonly prefixText?: string | PrefixTextGenerator;
 	}
 
-	interface PromiseOptions<T> extends Options {
-		/**
-		The new text of the spinner when the promise is resolved.
-
-		If undefined, will keep the initial text.
-		*/
-		successText?: string | ((result: T) => string);
-
-		/**
-		The new text of the spinner when the promise is rejected.
-
-		If undefined, will keep the initial text.
-		*/
-		failText?: string | ((error: Error) => string);
-	}
-
 	interface Ora {
 		/**
 		A boolean of whether the instance is currently spinning.
@@ -275,19 +259,19 @@ declare const ora: {
 	}, 1000);
 	```
 	*/
-	(options?: string | ora.Options): ora.Ora;
+	(options?: ora.Options | string): ora.Ora;
 
 	/**
-	Starts a spinner for a function or a promise. The spinner is stopped with `.succeed()` if the promise fulfills or with `.fail()` if it rejects. Returns the Promise.
+	Starts a spinner for a promise. The spinner is stopped with `.succeed()` if the promise fulfills or with `.fail()` if it rejects.
 
 	@param action - The promise to start the spinner for.
 	@param options - If a string is provided, it is treated as a shortcut for `options.text`.
 	@returns The spinner instance.
 	*/
-	promise<T>(
-		action: PromiseLike<T> | ((spinner: ora.Ora) => PromiseLike<T>),
-		options?: string | ora.PromiseOptions<T>
-	): Promise<T>;
+	promise(
+		action: PromiseLike<unknown>,
+		options?: ora.Options | string
+	): ora.Ora;
 };
 
 export = ora;

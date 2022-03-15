@@ -169,13 +169,15 @@ test('.promise() - rejects', async t => {
 	const output = getStream(stream);
 	const rejects = Promise.reject(new Error()); // eslint-disable-line unicorn/error-message
 
+	Ora.promise(rejects, {
+		stream,
+		text: 'foo',
+		color: false,
+		isEnabled: true
+	});
+
 	try {
-		await Ora.promise(rejects, {
-			stream,
-			text: 'foo',
-			color: false,
-			isEnabled: true
-		})
+		await rejects;
 	} catch {}
 
 	stream.end();
