@@ -49,7 +49,7 @@ Text or a function that returns text to display before the spinner. No prefix te
 ##### spinner
 
 Type: `string | object`\
-Default: `'dots'` <img src="screenshot-spinner.gif" width="14">
+Default: `'dots'`
 
 Name of one of the [provided spinners](https://github.com/sindresorhus/cli-spinners/blob/main/spinners.json). See `example.js` in this repo if you want to test out different spinners. On Windows, it will always use the `line` spinner as the Windows command-line doesn't have proper Unicode support.
 
@@ -184,8 +184,6 @@ Type: `string`\
 Default: Current `prefixText`
 
 Text to be persisted before the symbol. No prefix text will be displayed if set to an empty string.
-
-<img src="screenshot-2.gif" width="480">
 
 #### .clear()
 
